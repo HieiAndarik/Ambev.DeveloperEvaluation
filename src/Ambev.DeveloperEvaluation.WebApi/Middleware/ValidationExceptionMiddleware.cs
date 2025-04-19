@@ -31,12 +31,17 @@ namespace Ambev.DeveloperEvaluation.WebApi.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-            var response = new ApiResponse
+            var response = new ApiResponse(
+                success: false,
+                message: "Validation Failed"
+            )
             {
-                Success = false,
-                Message = "Validation Failed",
                 Errors = exception.Errors
-                    .Select(error => (ValidationErrorDetail)error)
+                    .Select(error => new ValidationErrorDetail
+                    {
+                        Error = error.ErrorMessage,
+                        Detail = $"Property: {error.PropertyName}, Attempted Value: {error.AttemptedValue}"
+                    })
             };
 
             var jsonOptions = new JsonSerializerOptions
