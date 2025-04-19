@@ -66,7 +66,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Controllers
         [HttpPost("{saleId}/items/{itemId}/cancel")]
         public async Task<IActionResult> CancelSaleItem(string saleId, string itemId)
         {
-            var command = new CancelSaleItemCommand { SaleId = saleId, ItemId = itemId };
+            var command = new CancelSaleItemCommand(saleId, itemId);
             await _mediator.Send(command);
             return Ok(new ApiResponse(true, "Sale item cancelled successfully"));
         }

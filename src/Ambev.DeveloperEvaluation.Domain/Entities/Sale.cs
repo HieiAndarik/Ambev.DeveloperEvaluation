@@ -10,6 +10,8 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
             BranchName = string.Empty;
             Items = new List<SaleItem>();
             SaleDate = DateTime.UtcNow;
+            CustomerId = string.Empty;
+            BranchId = string.Empty;
         }
 
         public int SaleNumber { get; set; }

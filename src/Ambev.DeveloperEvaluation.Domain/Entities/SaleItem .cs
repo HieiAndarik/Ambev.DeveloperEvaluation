@@ -8,6 +8,9 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public SaleItem()
         {
             ProductName = string.Empty;
+            ProductId = string.Empty;
+            SaleId = string.Empty;
+            Sale = null!;
         }
         public string ProductId { get; set; }
         public string ProductName { get; set; }
