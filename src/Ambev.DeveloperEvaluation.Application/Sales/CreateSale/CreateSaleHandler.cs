@@ -44,9 +44,9 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
             // Create sale
             var sale = _saleService.CreateSale(
                 saleNumber,
-                request.CustomerId,
-                $"{customer.Name.Firstname} {customer.Name.Lastname}",
-                request.BranchId,
+                request.CustomerId.ToString(),
+                $"{customer.FirstName} {customer.LastName}",
+                request.BranchId.ToString(),
                 branchName);
 
             // Add items
