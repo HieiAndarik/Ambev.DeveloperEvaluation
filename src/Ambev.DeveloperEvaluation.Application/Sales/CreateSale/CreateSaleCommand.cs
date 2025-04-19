@@ -1,17 +1,15 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 {
     public class CreateSaleCommand : IRequest<CreateSaleResult>
     {
         public int CustomerId { get; set; }
-        public int BranchId { get; set; }
-        public List<SaleItemDto> Items { get; set; }
+        public Guid BranchId { get; set; }
+        public List<CreateSaleItemDto> Items { get; set; } = new List<CreateSaleItemDto>();
     }
 
-    public class SaleItemDto
+    public class CreateSaleItemDto
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }

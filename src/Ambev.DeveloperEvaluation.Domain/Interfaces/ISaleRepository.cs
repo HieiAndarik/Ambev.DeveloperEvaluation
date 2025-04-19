@@ -4,11 +4,12 @@ namespace Ambev.DeveloperEvaluation.Domain.Interfaces
 {
     public interface ISaleRepository
     {
-        Task<Sale> GetByIdAsync(int id);
+        Task<Sale> GetByIdAsync(Guid id);
         Task<IEnumerable<Sale>> GetAllAsync(int page, int size, string orderBy);
-        Task<int> AddAsync(Sale sale);
+        Task<int> GetTotalCountAsync();
+        Task<Guid> AddAsync(Sale sale);
         Task UpdateAsync(Sale sale);
-        Task DeleteAsync(int id);
+        Task DeleteAsync(Guid id);
         Task<int> GetNextSaleNumberAsync();
     }
 }

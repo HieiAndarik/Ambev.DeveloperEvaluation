@@ -1,7 +1,8 @@
-﻿// Infrastructure/Repositories/SaleRepository.cs
+﻿// Infrastructure/ORM/Repositories/SaleRepository.cs
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
             _context = context;
         }
 
-        public async Task<Sale> GetByIdAsync(int id)
+        public async Task<Sale> GetByIdAsync(Guid id)
         {
             return await _context.Set<Sale>()
                 .Include(s => s.Items)
@@ -28,17 +29,39 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         {
             var query = _context.Set<Sale>().AsQueryable();
 
-            // Aplicar ordenação
+            // Apply ordering
             if (!string.IsNullOrEmpty(orderBy))
             {
-                // Aqui você implementaria a lógica de ordenação dinâmica
-                // Exemplo simplificado:
-                if (orderBy.Contains("saleDate"))
+                var parts = orderBy.Split(',');
+                foreach (var part in parts)
                 {
-                    query = orderBy.Contains("desc")
-                        ? query.OrderByDescending(s => s.SaleDate)
-                        : query.OrderBy(s => s.SaleDate);
+                    var trimmedPart = part.Trim();
+                    var descending = trimmedPart.EndsWith(" desc", StringComparison.OrdinalIgnoreCase);
+                    var property = descending ? trimmedPart.Replace(" desc", "", StringComparison.OrdinalIgnoreCase) : trimmedPart;
+
+                    switch (property.ToLower())
+                    {
+                        case "saledate":
+                            query = descending ? query.OrderByDescending(s => s.SaleDate) : query.OrderBy(s => s.SaleDate);
+                            break;
+                        case "salenumber":
+                            query = descending ? query.OrderByDescending(s => s.SaleNumber) : query.OrderBy(s => s.SaleNumber);
+                            break;
+                        case "totalamount":
+                            query = descending ? query.OrderByDescending(s => s.TotalAmount) : query.OrderBy(s => s.TotalAmount);
+                            break;
+                        case "customername":
+                            query = descending ? query.OrderByDescending(s => s.CustomerName) : query.OrderBy(s => s.CustomerName);
+                            break;
+                        default:
+                            query = query.OrderByDescending(s => s.SaleDate);
+                            break;
+                    }
                 }
+            }
+            else
+            {
+                query = query.OrderByDescending(s => s.SaleDate);
             }
 
             return await query
@@ -47,12 +70,17 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
                 .ToListAsync();
         }
 
-        public async Task<int> AddAsync(Sale sale)
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _context.Set<Sale>().CountAsync();
+        }
+
+        public async Task<Guid> AddAsync(Sale sale)
         {
             await _context.Set<Sale>().AddAsync(sale);
             await _context.SaveChangesAsync();
             return sale.Id;
-        } 
+        }
 
         public async Task UpdateAsync(Sale sale)
         {
@@ -60,7 +88,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Guid id)
         {
             var sale = await GetByIdAsync(id);
             if (sale != null)

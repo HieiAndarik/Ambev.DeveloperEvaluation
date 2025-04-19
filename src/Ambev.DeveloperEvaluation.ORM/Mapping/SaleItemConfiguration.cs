@@ -12,9 +12,6 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping
 
             builder.HasKey(i => i.Id);
 
-            builder.Property(i => i.SaleId)
-                .IsRequired();
-
             builder.Property(i => i.ProductId)
                 .IsRequired();
 

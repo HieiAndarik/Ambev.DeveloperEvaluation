@@ -4,13 +4,23 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
 {
     public class User
     {
-        public string Id { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public UserStatus Status { get; set; } = UserStatus.Active;
-        public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public UserRole Role { get; set; } = UserRole.Customer;
+        public User(string id, string username, string password, UserStatus status, string email, string phone, UserRole role)
+        {
+            Id = id;
+            Username = username;
+            Password = password;
+            Status = status;
+            Email = email;
+            Phone = phone;
+            Role = role;
+        }
+        public string Id { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public UserStatus Status { get; set; } 
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public UserRole Role { get; set; }
         public void Activate()
         {
             Status = UserStatus.Active;

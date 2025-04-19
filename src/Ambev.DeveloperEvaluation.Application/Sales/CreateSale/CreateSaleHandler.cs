@@ -1,8 +1,8 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities;
+﻿using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Interfaces;
+using Ambev.DeveloperEvaluation.Domain.Services;
+using FluentValidation;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 {
@@ -11,59 +11,64 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         private readonly ISaleRepository _saleRepository;
         private readonly IUserRepository _userRepository;
         private readonly IProductRepository _productRepository;
-        // Aqui poderia ter um IBranchRepository se existisse
+        private readonly ISaleService _saleService;
+        private readonly IMediator _mediator;
 
         public CreateSaleHandler(
             ISaleRepository saleRepository,
             IUserRepository userRepository,
-            IProductRepository productRepository)
+            IProductRepository productRepository,
+            ISaleService saleService,
+            IMediator mediator)
         {
             _saleRepository = saleRepository;
             _userRepository = userRepository;
             _productRepository = productRepository;
+            _saleService = saleService;
+            _mediator = mediator;
         }
 
         public async Task<CreateSaleResult> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
         {
-            // Obter dados do cliente
+            // Get customer data
             var customer = await _userRepository.GetByIdAsync(request.CustomerId);
             if (customer == null)
                 throw new ValidationException("Customer not found");
 
-            // Aqui poderia buscar os dados do Branch, mas como não temos essa entidade
-            // no projeto, vou usar valores fictícios
-            string branchName = "Main Branch"; // Em um cenário real, isso viria do banco
+            // In a real scenario, we'd get branch data from a repository
+            string branchName = "Main Branch"; // Example value
 
-            // Obter próximo número de venda
+            // Get next sale number
             int saleNumber = await _saleRepository.GetNextSaleNumberAsync();
 
-            // Criar a venda
-            var sale = Sale.Create(
+            // Create sale
+            var sale = _saleService.CreateSale(
                 saleNumber,
-                customer.Id,
+                request.CustomerId,
                 $"{customer.Name.Firstname} {customer.Name.Lastname}",
                 request.BranchId,
                 branchName);
 
-            // Adicionar itens
+            // Add items
             foreach (var itemDto in request.Items)
             {
                 var product = await _productRepository.GetByIdAsync(itemDto.ProductId);
                 if (product == null)
                     throw new ValidationException($"Product with ID {itemDto.ProductId} not found");
 
-                sale.AddItem(
-                    product.Id,
+                _saleService.AddItem(
+                    sale,
+                    product.Id.ToString(),
                     product.Title,
                     itemDto.Quantity,
                     product.Price);
             }
 
-            // Persistir a venda
+            // Save sale
             await _saleRepository.AddAsync(sale);
 
-            // Publicar evento de SaleCreated (opcional)
-            // _mediator.Publish(new SaleCreatedEvent(sale.Id));
+            // Publish event
+            await _mediator.Publish(new SaleCreatedEvent(sale.Id), cancellationToken);
 
             return new CreateSaleResult
             {

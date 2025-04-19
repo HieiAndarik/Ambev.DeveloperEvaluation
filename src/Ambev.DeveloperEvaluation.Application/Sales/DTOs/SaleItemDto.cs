@@ -1,22 +1,17 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Common;
-using System;
-
-namespace Ambev.DeveloperEvaluation.Domain.Entities
+﻿namespace Ambev.DeveloperEvaluation.Application.Sales.DTOs
 {
-    public class SaleItem : BaseEntity
+    public class SaleItemDto
     {
-        public SaleItem()
+        public SaleItemDto()
         {
             ProductName = string.Empty;
         }
-        public string ProductId { get; set; }
+        public Guid Id { get; set; }
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal Discount { get; set; }
         public decimal TotalAmount { get; set; }
         public bool IsCancelled { get; set; }
-        public string SaleId { get; set; }
-        public virtual Sale Sale { get; set; }
     }
 }
