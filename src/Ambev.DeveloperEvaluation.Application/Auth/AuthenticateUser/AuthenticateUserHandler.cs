@@ -38,7 +38,7 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
 
             var token = _jwtTokenGenerator.GenerateToken(new AuthUserAdapter
             {
-                Id = user.Id,
+                Id = user.Id.ToString(),
                 Username = user.Username,
                 Email = user.Email,
                 Role = user.Role.ToString()

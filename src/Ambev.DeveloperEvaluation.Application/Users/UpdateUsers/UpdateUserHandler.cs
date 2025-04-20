@@ -19,7 +19,7 @@ namespace Ambev.DeveloperEvaluation.Application.Users
         {
             var user = new User
             {
-                Id = command.Id,
+                Id = Guid.Parse(command.Id),
                 Username = command.Username,
                 Email = command.Email,
                 Password = command.Password,

@@ -9,7 +9,6 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         {
             ProductName = string.Empty;
             ProductId = string.Empty;
-            SaleId = string.Empty;
             Sale = null!;
         }
         public string ProductId { get; set; }
@@ -19,7 +18,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public decimal Discount { get; set; }
         public decimal TotalAmount { get; set; }
         public bool IsCancelled { get; set; }
-        public string SaleId { get; set; }
+        public Guid SaleId { get; set; }
         public virtual Sale Sale { get; set; }
     }
 }

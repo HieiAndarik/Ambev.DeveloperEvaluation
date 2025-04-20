@@ -15,8 +15,8 @@ public class GetUsersHandlerTests
         // Arrange
         var users = new List<User>
         {
-            new() { Id = Guid.NewGuid().ToString(), Username = "john", Email = "john@example.com" },
-            new() { Id = Guid.NewGuid().ToString(), Username = "jane", Email = "jane@example.com" }
+            new() { Id = Guid.NewGuid(), Username = "john", Email = "john@example.com" },
+            new() { Id = Guid.NewGuid(), Username = "jane", Email = "jane@example.com" }
         };
 
         var repoMock = new Mock<IUserRepository>();

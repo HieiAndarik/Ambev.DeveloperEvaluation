@@ -32,7 +32,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services
                 UnitPrice = unitPrice,
                 Discount = discount,
                 IsCancelled = false,
-                SaleId = sale.Id.ToString(),
+                SaleId = sale.Id,
             };
 
             CalculateItemTotalAmount(item);
