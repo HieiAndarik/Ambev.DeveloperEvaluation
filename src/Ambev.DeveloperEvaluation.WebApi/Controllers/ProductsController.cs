@@ -2,85 +2,79 @@ using Microsoft.AspNetCore.Mvc;
 using Ambev.DeveloperEvaluation.Application.Products;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Ambev.DeveloperEvaluation.Application.Products.GetProducts;
+using MediatR;
+using Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
+using Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+using Ambev.DeveloperEvaluation.Application.Products.DeleteProduct;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
+        private readonly IMediator _mediator;
 
-        public ProductsController(IProductRepository productRepository)
+        public ProductsController(IProductRepository productRepository, IMediator mediator)
         {
             _productRepository = productRepository;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(
+        [FromQuery(Name = "_page")] int page = 1,
+        [FromQuery(Name = "_size")] int size = 10,
+        [FromQuery(Name = "_order")] string? order = null)
         {
-            var products = await _productRepository.GetAllAsync();
-            return Ok(products);
+            var result = await _mediator.Send(new GetProductsQuery(page, size, order));
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id)
+        public async Task<IActionResult> GetProductById(int id, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return Ok(product);
+            var product = await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
+            return product == null ? NotFound() : Ok(product);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
-            await _productRepository.AddAsync(product);
-            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+            var id = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetProductById), new { id }, command);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product product)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductCommand command, CancellationToken cancellationToken)
         {
-            var existingProduct = await _productRepository.GetByIdAsync(id);
-            if (existingProduct == null)
-            {
-                return NotFound();
-            }
+            if (id != command.Id)
+                return BadRequest("URL id and body id must match.");
 
-            existingProduct.Title = product.Title;
-            existingProduct.Price = product.Price;
-            existingProduct.Description = product.Description;
-
-            await _productRepository.UpdateAsync(existingProduct);
-            return NoContent();
+            var success = await _mediator.Send(command, cancellationToken);
+            return success ? NoContent() : NotFound();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id, CancellationToken cancellationToken)
         {
-            var success = await _productRepository.DeleteByIdAsync(id);
-            if (!success)
-            {
-                return NotFound();
-            }
-            return NoContent();
+            var success = await _mediator.Send(new DeleteProductCommand(id), cancellationToken);
+            return success ? NoContent() : NotFound();
         }
 
         [HttpGet("categories")]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetByCategory(
+        string category,
+        [FromQuery(Name = "_page")] int page = 1,
+        [FromQuery(Name = "_size")] int size = 10,
+        [FromQuery(Name = "_order")] string? order = null)
         {
-            var categories = await _productRepository.GetAllCategoriesAsync();
-            return Ok(categories);
-        }
-
-        [HttpGet("category/{category}")]
-        public async Task<IActionResult> GetByCategory(string category)
-        {
-            var products = await _productRepository.GetByCategoryAsync(category);
-            return Ok(products);
+            var result = await _mediator.Send(new GetProductsByCategoryQuery(category, page, size, order));
+            return Ok(result);
         }
     }
 }

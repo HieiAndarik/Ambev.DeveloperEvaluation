@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Ambev.DeveloperEvaluation.Application.Carts;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CartsController : ControllerBase
     {
         private readonly ICartRepository _cartRepository;

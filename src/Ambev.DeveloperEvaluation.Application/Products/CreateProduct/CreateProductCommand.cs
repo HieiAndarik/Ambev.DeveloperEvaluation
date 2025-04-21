@@ -1,8 +1,9 @@
-namespace Ambev.DeveloperEvaluation.Application.Products.GetProducts;
+﻿using MediatR;
 
-public sealed class ProductDto
+namespace Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
+
+public sealed class CreateProductCommand : IRequest<int>
 {
-    public int Id { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
     public decimal Price { get; init; }

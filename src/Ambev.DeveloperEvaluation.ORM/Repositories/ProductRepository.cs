@@ -20,7 +20,7 @@ public class ProductRepository : IProductRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Products
             .AsNoTracking()
@@ -34,9 +34,21 @@ public class ProductRepository : IProductRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+    public async Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
+
     public async Task AddAsync(Product product)
     {
         await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
+    }
+    public async Task AddAsync(Product product, CancellationToken cancellationToken = default)
+    {
+        await _context.Products.AddAsync(product, cancellationToken);
         await _context.SaveChangesAsync();
     }
 
@@ -44,6 +56,12 @@ public class ProductRepository : IProductRepository
     {
         _context.Products.Update(product);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Product product, CancellationToken cancellationToken = default)
+    {
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(Product product)
@@ -66,6 +84,22 @@ public class ProductRepository : IProductRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var product = await _context.Products
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        if (product == null)
+        {
+            return false;
+        }
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     public async Task<IEnumerable<string>> GetAllCategoriesAsync()
     {
         return await _context.Products
@@ -79,5 +113,12 @@ public class ProductRepository : IProductRepository
         return await _context.Products
             .Where(p => p.Category == category)
             .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Product>> GetByCategoryAsync(string category, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .Where(p => p.Category == category)
+            .ToListAsync(cancellationToken);
     }
 }

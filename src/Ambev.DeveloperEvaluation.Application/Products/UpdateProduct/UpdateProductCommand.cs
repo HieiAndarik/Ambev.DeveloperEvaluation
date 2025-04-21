@@ -1,6 +1,8 @@
-namespace Ambev.DeveloperEvaluation.Application.Products.GetProducts;
+﻿using MediatR;
 
-public sealed class ProductDto
+namespace Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+
+public sealed class UpdateProductCommand : IRequest<bool>
 {
     public int Id { get; init; }
     public string Title { get; init; } = string.Empty;

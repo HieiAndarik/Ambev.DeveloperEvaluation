@@ -16,17 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Users\ListUsers\**" />
-    <Compile Remove="Features\Users\UpdateUser\**" />
-    <Content Remove="Features\Users\ListUsers\**" />
-    <Content Remove="Features\Users\UpdateUser\**" />
-    <EmbeddedResource Remove="Features\Users\ListUsers\**" />
-    <EmbeddedResource Remove="Features\Users\UpdateUser\**" />
-    <None Remove="Features\Users\ListUsers\**" />
-    <None Remove="Features\Users\UpdateUser\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,11 +29,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Ambev.DeveloperEvaluation.Application\Ambev.DeveloperEvaluation.Application.csproj" />
     <ProjectReference Include="..\Ambev.DeveloperEvaluation.IoC\Ambev.DeveloperEvaluation.IoC.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Users\GetUser\" />
-    <Folder Include="Features\Users\DeleteUser\" />
   </ItemGroup>
 
 </Project>

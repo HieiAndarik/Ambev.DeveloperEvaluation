@@ -1,29 +1,28 @@
+﻿using Ambev.DeveloperEvaluation.Common.Utils;
 using Ambev.DeveloperEvaluation.Domain.Interfaces;
 using AutoMapper;
 using MediatR;
-using Ambev.DeveloperEvaluation.Common.Utils;
 
 namespace Ambev.DeveloperEvaluation.Application.Products.GetProducts;
 
-public sealed class GetProductsHandler : IRequestHandler<GetProductsQuery, ProductsListResponse<ProductDto>>
+public sealed class GetProductsByCategoryHandler : IRequestHandler<GetProductsByCategoryQuery, ProductsListResponse<ProductDto>>
 {
     private readonly IProductRepository _repository;
     private readonly IMapper _mapper;
 
-    public GetProductsHandler(IProductRepository repository, IMapper mapper)
+    public GetProductsByCategoryHandler(IProductRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<ProductsListResponse<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+    public async Task<ProductsListResponse<ProductDto>> Handle(GetProductsByCategoryQuery request, CancellationToken cancellationToken)
     {
-        var allProducts = await _repository.GetAllAsync(cancellationToken);
-        var ordered = allProducts.AsEnumerable().ApplyOrdering(request.Order);
+        var filtered = await _repository.GetByCategoryAsync(request.Category, cancellationToken);
 
+        var ordered = filtered.ApplyOrdering(request.Order);
         var totalItems = ordered.Count();
-        var paged = ordered.ApplyPagination(request.Page, request.Size).ToList();
-
+        var paged = ordered.ApplyPagination(request.Page, request.Size);
         var mapped = _mapper.Map<IEnumerable<ProductDto>>(paged);
 
         return new ProductsListResponse<ProductDto>

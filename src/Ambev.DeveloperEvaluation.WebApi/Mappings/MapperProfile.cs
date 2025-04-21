@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using Ambev.DeveloperEvaluation.Application.Users;
 using Ambev.DeveloperEvaluation.Domain.Entities;
-using Ambev.DeveloperEvaluation.Application.DTOs;
 using Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Auth.AuthenticateUserFeature;
+using Ambev.DeveloperEvaluation.Application.Users.GetUser;
+using Ambev.DeveloperEvaluation.Application.Users.UpdateUsers;
+using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
 
 namespace Ambev.DeveloperEvaluation.Application.Mappings
 {
@@ -20,7 +21,6 @@ namespace Ambev.DeveloperEvaluation.Application.Mappings
             CreateMap<User, UserResponse>();
 
             CreateMap<AuthenticateUserRequest, AuthenticateUserCommand>();
-
         }
     }
 }

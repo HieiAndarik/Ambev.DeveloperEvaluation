@@ -1,4 +1,4 @@
-namespace Ambev.DeveloperEvaluation.Application.DTOs
+namespace Ambev.DeveloperEvaluation.Application.Users.GetUser
 {
     public class UserResponse
     {
