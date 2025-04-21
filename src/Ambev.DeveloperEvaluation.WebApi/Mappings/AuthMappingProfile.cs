@@ -11,6 +11,6 @@ public class AuthMappingProfile : Profile
 {
     public AuthMappingProfile()
     {
-        CreateMap<AuthenticatedUserResult, AuthenticatedUserResponse>();
+        CreateMap<AuthenticateUserResult, AuthenticateUserResponse>();
     }
 }
