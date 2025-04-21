@@ -11,6 +11,7 @@ public class DefaultContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Cart> Carts { get; set; }
+    public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Sale> Sales { get; set; }
     public DbSet<SaleItem> SaleItems { get; set; }
 
@@ -37,6 +38,20 @@ public class DefaultContext : DbContext
             }
         );
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Cart>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            entity.HasMany(c => c.Items)
+                  .WithOne(ci => ci.Cart)
+                  .HasForeignKey(ci => ci.CartId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<CartItem>(entity =>
+        {
+            entity.HasKey(ci => ci.Id);                                         
+        });
     }
 }
 

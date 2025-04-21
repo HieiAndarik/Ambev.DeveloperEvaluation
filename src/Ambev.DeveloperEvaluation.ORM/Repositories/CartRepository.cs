@@ -17,6 +17,7 @@ public class CartRepository : ICartRepository
     {
         return await _context.Carts
             .AsNoTracking()
+            .Include(c => c.Items)
             .ToListAsync(cancellationToken);
     }
 
@@ -24,6 +25,7 @@ public class CartRepository : ICartRepository
     {
         return await _context.Carts
             .AsNoTracking()
+            .Include(c => c.Items)
             .ToListAsync();
     }
 
@@ -31,6 +33,7 @@ public class CartRepository : ICartRepository
     {
         return await _context.Carts
             .AsNoTracking()
+            .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
@@ -38,6 +41,7 @@ public class CartRepository : ICartRepository
     {
         return await _context.Carts
             .AsNoTracking()
+            .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
