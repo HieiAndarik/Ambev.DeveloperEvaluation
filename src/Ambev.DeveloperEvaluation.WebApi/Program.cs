@@ -74,10 +74,10 @@ public class Program
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("🔥 FATAL ERROR: " + ex.Message);
-            Console.WriteLine(ex.StackTrace);
-            Console.ResetColor();
+            //Console.ForegroundColor = ConsoleColor.Red;
+            //Console.WriteLine("🔥 FATAL ERROR: " + ex.Message);
+            //Console.WriteLine(ex.StackTrace);
+            //Console.ResetColor();
 
             Log.Fatal(ex, "Application terminated unexpectedly");
         }

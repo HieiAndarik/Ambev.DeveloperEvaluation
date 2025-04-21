@@ -1,4 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
+using Ambev.DeveloperEvaluation.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,21 @@ public class DefaultContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        var userId = Guid.NewGuid();
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = userId,
+                Username = "admin",
+                Password = BCrypt.Net.BCrypt.HashPassword("teste123"),
+                Email = "teste@ambev.com",
+                Phone = "999999999",
+                Status = UserStatus.Active,
+                Role = UserRole.Admin,
+                FirstName = "Admin",
+                LastName = "Inicial"
+            }
+        );
         base.OnModelCreating(modelBuilder);
     }
 }
