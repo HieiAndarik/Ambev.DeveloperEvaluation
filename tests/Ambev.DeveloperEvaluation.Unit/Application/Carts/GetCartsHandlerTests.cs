@@ -1,119 +1,127 @@
-//using Ambev.DeveloperEvaluation.Domain.Entities;
-//using Ambev.DeveloperEvaluation.Domain.Interfaces;
-//using AutoMapper;
-//using FluentAssertions;
-//using Moq;
-//using Xunit;
-//using System;
-//using System.Threading;
-//using System.Threading.Tasks;
+using Ambev.DeveloperEvaluation.Domain.Entities;
+using Ambev.DeveloperEvaluation.Domain.Interfaces;
+using AutoMapper;
+using FluentAssertions;
+using Moq;
+using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Ambev.DeveloperEvaluation.Application.Carts.GetCarts;
 
-//namespace Ambev.DeveloperEvaluation.Unit.Application.Carts
-//{
-//    public class CreateCartHandlerTests
-//    {
-//        private readonly Mock<ICartRepository> _cartRepositoryMock = new();
-//        private readonly IMapper _mapper;
+namespace Ambev.DeveloperEvaluation.Unit.Application.Carts
+{
+    public class GetCartsHandlerTests
+    {
+        private readonly Mock<ICartRepository> _cartRepositoryMock = new();
+        private readonly IMapper _mapper;
 
-//        public CreateCartHandlerTests()
-//        {
-//            var mapperConfig = new MapperConfiguration(cfg =>
-//            {
-//                cfg.CreateMap<CreateCartCommand, Cart>();
-//                cfg.CreateMap<Cart, CreateCartResult>();
-//            });
-//            _mapper = mapperConfig.CreateMapper();
-//        }
+        public GetCartsHandlerTests()
+        {
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<CartItem, CartItemDto>();
+                cfg.CreateMap<Cart, CartDto>();
+            });
+            _mapper = mapperConfig.CreateMapper();
+        }
 
-//        [Fact]
-//        public async Task Handle_ShouldCreateCartSuccessfully()
-//        {
-//            // Arrange
-//            var customerId = Guid.NewGuid();
+        [Fact]
+        public async Task Handle_ShouldReturnPagedCarts_WithCorrectData()
+        {
+            // Arrange
+            var carts = new List<Cart>
+            {
+                new()
+                {
+                    Id = 1,
+                    UserId = Guid.NewGuid(),
+                    Date = DateTime.UtcNow,
+                    Items = new List<CartItem>
+                    {
+                        new() { Id = 1, ProductId = 100, Quantity = 2 },
+                        new() { Id = 2, ProductId = 101, Quantity = 3 }
+                    }
+                },
+                new()
+                {
+                    Id = 2,
+                    UserId = Guid.NewGuid(),
+                    Date = DateTime.UtcNow,
+                    Items = new List<CartItem>
+                    {
+                        new() { Id = 3, ProductId = 102, Quantity = 1 }
+                    }
+                }
+            };
 
-//            var command = new CreateCartCommand { CustomerId = customerId };
+            _cartRepositoryMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(carts);
 
-//            var expectedCart = new Cart { Id = Guid.NewGuid(), CustomerId = customerId };
+            var handler = new GetCartsHandler(_cartRepositoryMock.Object, _mapper);
+            var query = new GetCartsQuery();
 
-//            _cartRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Cart>(), It.IsAny<CancellationToken>()))
-//                .ReturnsAsync(expectedCart);
+            // Act
+            var result = await handler.Handle(query, default);
 
-//            var handler = new CreateCartHandler(_cartRepositoryMock.Object, _mapper);
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(2);
+            result.Items.First().Id.Should().Be(1);
+            result.Items.Last().Id.Should().Be(2);
+            result.TotalItems.Should().Be(2);
+        }
 
-//            // Act
-//            var result = await handler.Handle(command, CancellationToken.None);
+        [Fact]
+        public async Task Handle_ShouldReturnCart_WhenExists()
+        {
+            var cart = new Cart { Id = 1, UserId = Guid.NewGuid(), Date = DateTime.UtcNow };
+            _cartRepositoryMock.Setup(r => r.GetByIdAsync(cart.Id, default)).ReturnsAsync(cart);
 
-//            // Assert
-//            result.Should().NotBeNull();
-//            result.Id.Should().Be(expectedCart.Id);
-//            result.CustomerId.Should().Be(customerId);
-//        }
+            var handler = new GetCartByIdHandler(_cartRepositoryMock.Object, _mapper);
+            var result = await handler.Handle(new GetCartByIdQuery(cart.Id), default);
 
-//        [Fact]
-//        public async Task Handle_ShouldThrow_WhenRepositoryReturnsNull()
-//        {
-//            // Arrange
-//            var command = new CreateCartCommand { CustomerId = Guid.NewGuid() };
+            result.Should().NotBeNull();
+            result.Id.Should().Be(cart.Id);
+        }
 
-//            _cartRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Cart>(), It.IsAny<CancellationToken>()))
-//                .ReturnsAsync((Cart?)null);
+        [Fact]
+        public async Task Handle_ShouldReturnNull_WhenCartDoesNotExist()
+        {
+            _cartRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>(), default))
+                .ReturnsAsync((Cart?)null);
 
-//            var handler = new CreateCartHandler(_cartRepositoryMock.Object, _mapper);
+            var handler = new GetCartByIdHandler(_cartRepositoryMock.Object, _mapper);
+            var result = await handler.Handle(new GetCartByIdQuery(999), default);
 
-//            // Act
-//            var result = await handler.Handle(command, CancellationToken.None);
+            result.Should().BeNull();
+        }
 
-//            // Assert
-//            result.Should().BeNull();
-//        }
+        [Fact]
+        public async Task Handle_ShouldMapCartItemsCorrectly()
+        {
+            var cart = new Cart
+            {
+                Id = 1,
+                UserId = Guid.NewGuid(),
+                Date = DateTime.UtcNow,
+                Items = new List<CartItem>
+                {
+                    new() { Id = 1, ProductId = 100, Quantity = 3 },
+                    new() { Id = 2, ProductId = 200, Quantity = 1 }
+                }
+            };
 
-//        [Fact]
-//        public async Task Handle_ShouldPassCorrectCartToRepository()
-//        {
-//            // Arrange
-//            var customerId = Guid.NewGuid();
-//            Cart? capturedCart = null;
+            _cartRepositoryMock.Setup(r => r.GetByIdAsync(cart.Id, default)).ReturnsAsync(cart);
 
-//            var command = new CreateCartCommand { CustomerId = customerId };
+            var handler = new GetCartByIdHandler(_cartRepositoryMock.Object, _mapper);
+            var result = await handler.Handle(new GetCartByIdQuery(cart.Id), default);
 
-//            _cartRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Cart>(), It.IsAny<CancellationToken>()))
-//                .Callback<Cart, CancellationToken>((cart, _) => capturedCart = cart)
-//                .ReturnsAsync(new Cart { Id = Guid.NewGuid(), CustomerId = customerId });
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(2);
+            result.Items.First().ProductId.Should().Be(100);
+        }
 
-//            var handler = new CreateCartHandler(_cartRepositoryMock.Object, _mapper);
-
-//            // Act
-//            await handler.Handle(command, CancellationToken.None);
-
-//            // Assert
-//            capturedCart.Should().NotBeNull();
-//            capturedCart!.CustomerId.Should().Be(customerId);
-//        }
-
-//        [Fact]
-//        public async Task Handle_ReturnsCartsCorrectly()
-//        {
-//            // Arrange
-//            var carts = new List<Cart>
-//        {
-//            new() { Id = 1, UserId = 101, Date = DateTime.UtcNow },
-//            new() { Id = 2, UserId = 102, Date = DateTime.UtcNow }
-//        };
-
-//            var repoMock = new Mock<ICartRepository>();
-//            repoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(carts);
-
-//            var mapperConfig = new MapperConfiguration(cfg => cfg.CreateMap<Cart, CartDto>());
-//            var mapper = mapperConfig.CreateMapper();
-
-//            var handler = new GetCartsHandler(repoMock.Object, mapper);
-
-//            // Act
-//            var result = await handler.Handle(new GetCartsQuery(), default);
-
-//            // Assert
-//            Assert.Equal(2, result.Carts.Count());
-//            Assert.Equal(2, result.TotalCount);
-//        }
-//    }
-//}
+    }
+}

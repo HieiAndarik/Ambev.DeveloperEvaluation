@@ -8,6 +8,6 @@ namespace Ambev.DeveloperEvaluation.Application.Carts.UpdateCart
         public int Id { get; init; }
         public Guid UserId { get; init; }
         public DateTime Date { get; init; }
-        public List<CartItemDto> Items { get; init; } = new();
+        public List<UpdateCartItemDto> Items { get; init; } = new();
     }
 }
