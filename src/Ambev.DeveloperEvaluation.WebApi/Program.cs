@@ -70,8 +70,11 @@ public class Program
 
             builder.RegisterDependencies();
 
-            builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
-            builder.Services.AddAutoMapper(typeof(AuthMappingProfile).Assembly);
+            builder.Services.AddAutoMapper(
+                typeof(Program).Assembly,
+                typeof(ApplicationLayer).Assembly,
+                typeof(AuthProfile).Assembly
+            );
 
 
             builder.Services.AddMediatR(cfg =>

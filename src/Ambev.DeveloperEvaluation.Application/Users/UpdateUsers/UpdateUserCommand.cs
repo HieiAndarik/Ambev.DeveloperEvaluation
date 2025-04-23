@@ -4,7 +4,9 @@ using MediatR;
 namespace Ambev.DeveloperEvaluation.Application.Users
 {
     public record UpdateUserCommand(
-        string Id,
+        Guid Id,
+        string Firstname,
+        string Lastname,
         string Username,
         string Email,
         string Password,

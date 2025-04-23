@@ -26,6 +26,7 @@ public sealed class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersRes
             _ => allUsers
         };
 
+        var totalItems = ordered.Count();
         var paged = ordered
             .Skip((request.Page - 1) * request.Size)
             .Take(request.Size)
@@ -33,8 +34,10 @@ public sealed class GetUsersHandler : IRequestHandler<GetUsersQuery, GetUsersRes
 
         return new GetUsersResult
         {
-            Users = _mapper.Map<IEnumerable<UserDto>>(paged),
-            TotalCount = allUsers.Count()
+            Data = _mapper.Map<IEnumerable<UserDto>>(paged),
+            TotalItems = totalItems,
+            CurrentPage = request.Page,
+            TotalPages = (int)Math.Ceiling((double)totalItems / request.Size)
         };
     }
 }

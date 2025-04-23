@@ -30,18 +30,14 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 
         public async Task<CreateSaleResult> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
         {
-            // Get customer data
             var customer = await _userRepository.GetByIdAsync(request.CustomerId);
             if (customer == null)
                 throw new ValidationException("Customer not found");
+            
+            string branchName = "Ambev Online";
 
-            // In a real scenario, we'd get branch data from a repository
-            string branchName = "Main Branch"; // Example value
-
-            // Get next sale number
             int saleNumber = await _saleRepository.GetNextSaleNumberAsync();
 
-            // Create sale
             var sale = _saleService.CreateSale(
                 saleNumber,
                 request.CustomerId.ToString(),
@@ -49,7 +45,6 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
                 request.BranchId.ToString(),
                 branchName);
 
-            // Add items
             foreach (var itemDto in request.Items)
             {
                 var product = await _productRepository.GetByIdAsync(itemDto.ProductId);
@@ -64,10 +59,8 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
                     product.Price);
             }
 
-            // Save sale
             await _saleRepository.AddAsync(sale);
 
-            // Publish event
             await _mediator.Publish(new SaleCreatedEvent(sale.Id), cancellationToken);
 
             return new CreateSaleResult

@@ -1,40 +1,39 @@
+using Ambev.DeveloperEvaluation.Application.Carts.GetCarts;
 using Ambev.DeveloperEvaluation.Domain.Interfaces;
 using AutoMapper;
 using MediatR;
 
-namespace Ambev.DeveloperEvaluation.Application.Carts.GetCarts;
-
-public sealed class GetCartsHandler : IRequestHandler<GetCartsQuery, GetCartsResult>
+namespace Ambev.DeveloperEvaluation.Application.Carts.GetCarts
 {
-    private readonly ICartRepository _repository;
-    private readonly IMapper _mapper;
-
-    public GetCartsHandler(ICartRepository repository, IMapper mapper)
+    public class GetCartsHandler : IRequestHandler<GetCartsQuery, GetCartsResult>
     {
-        _repository = repository;
-        _mapper = mapper;
-    }
+        private readonly ICartRepository _cartRepository;
+        private readonly IMapper _mapper;
 
-    public async Task<GetCartsResult> Handle(GetCartsQuery request, CancellationToken cancellationToken)
-    {
-        var allCarts = await _repository.GetAllAsync(cancellationToken);
-
-        var ordered = request.Order?.ToLower() switch
+        public GetCartsHandler(ICartRepository cartRepository, IMapper mapper)
         {
-            "userid" => allCarts.OrderBy(c => c.UserId),
-            "date" => allCarts.OrderBy(c => c.Date),
-            _ => allCarts
-        };
+            _cartRepository = cartRepository;
+            _mapper = mapper;
+        }
 
-        var paged = ordered
-            .Skip((request.Page - 1) * request.Size)
-            .Take(request.Size)
-            .ToList();
-
-        return new GetCartsResult
+        public async Task<GetCartsResult> Handle(GetCartsQuery request, CancellationToken cancellationToken)
         {
-            Carts = _mapper.Map<IEnumerable<CartDto>>(paged),
-            TotalCount = allCarts.Count()
-        };
+            var carts = await _cartRepository.GetAllAsync(cancellationToken);
+            var totalItems = carts.Count();
+            var pagedCarts = carts
+                .Skip((request.Page - 1) * request.Size)
+                .Take(request.Size)
+                .ToList();
+
+            var result = new GetCartsResult
+            {
+                Items = _mapper.Map<List<CartDto>>(pagedCarts),
+                TotalItems = totalItems,
+                CurrentPage = request.Page,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)request.Size)
+            };
+
+            return result;
+        }
     }
 }

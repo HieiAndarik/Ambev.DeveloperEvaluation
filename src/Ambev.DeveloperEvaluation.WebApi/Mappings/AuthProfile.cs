@@ -7,9 +7,9 @@ using Ambev.DeveloperEvaluation.Application.Auth;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Mappings;
 
-public class AuthMappingProfile : Profile
+public class AuthProfile : Profile
 {
-    public AuthMappingProfile()
+    public AuthProfile()
     {
         CreateMap<AuthenticateUserResult, AuthenticateUserResponse>();
     }

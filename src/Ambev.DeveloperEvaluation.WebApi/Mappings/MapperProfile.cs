@@ -6,7 +6,7 @@ using Ambev.DeveloperEvaluation.Application.Users.GetUser;
 using Ambev.DeveloperEvaluation.Application.Users.UpdateUsers;
 using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
 
-namespace Ambev.DeveloperEvaluation.Application.Mappings
+namespace Ambev.DeveloperEvaluation.WebApi.Mappings
 {
     public class MapperProfile : Profile
     {

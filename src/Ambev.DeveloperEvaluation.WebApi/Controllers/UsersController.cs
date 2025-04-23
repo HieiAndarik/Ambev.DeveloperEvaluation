@@ -5,6 +5,9 @@ using Ambev.DeveloperEvaluation.Domain.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Authorization;
+using Ambev.DeveloperEvaluation.Application.Users.GetUsers;
+using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
+using Ambev.DeveloperEvaluation.Application.Users.DeleteUser;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Controllers
 {
@@ -23,43 +26,39 @@ namespace Ambev.DeveloperEvaluation.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers(
+        [FromQuery(Name = "_page")] int page = 1,
+        [FromQuery(Name = "_size")] int size = 10,
+        [FromQuery(Name = "_order")] string? order = null,
+        CancellationToken cancellationToken = default)
         {
-            var users = await _userRepository.GetAllAsync();
-            return Ok(users);
+            var result = await _mediator.Send(new GetUsersQuery(page, size, order), cancellationToken);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+            var user = await _mediator.Send(new GetUserByIdQuery(id), cancellationToken);
+            return user is null ? NotFound() : Ok(user);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
         {
-            var createdUser = await _userRepository.CreateAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+            var result = await _mediator.Send(command, cancellationToken);
+            return CreatedAtAction(nameof(GetUserById), new { id = result.Id }, result);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
         {
-            var success = await _userRepository.DeleteByIdAsync(id);
-            if (!success)
-            {
-                return NotFound();
-            }
-            return NoContent();
+            var success = await _mediator.Send(new DeleteUserCommand(id), cancellationToken);
+            return success ? NoContent() : NotFound();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserCommand command)
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserCommand command)
         {
             if (id != command.Id) return BadRequest("ID mismatch");
 

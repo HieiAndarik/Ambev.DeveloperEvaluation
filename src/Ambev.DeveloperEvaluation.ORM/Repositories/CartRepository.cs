@@ -51,16 +51,35 @@ public class CartRepository : ICartRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task AddAsync(Cart cart, CancellationToken cancellationToken = default)
+    {
+        await _context.Carts.AddAsync(cart, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task UpdateAsync(Cart cart)
     {
         _context.Carts.Update(cart);
         await _context.SaveChangesAsync();
     }
 
+    public async Task<bool> UpdateAsync(Cart cart, CancellationToken cancellationToken = default)
+    {
+        _context.Carts.Update(cart);
+        var affected = await _context.SaveChangesAsync(cancellationToken);
+        return affected > 0;
+    }
+
     public async Task DeleteAsync(Cart cart)
     {
         _context.Carts.Remove(cart);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Cart cart, CancellationToken cancellationToken = default)
+    {
+        _context.Carts.Remove(cart);
+        await _context.SaveChangesAsync(cancellationToken);
     }
     public async Task<bool> DeleteByIdAsync(int id)
     {
@@ -74,6 +93,21 @@ public class CartRepository : ICartRepository
 
         _context.Carts.Remove(cart);
         await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var cart = await _context.Carts
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (cart == null)
+        {
+            return false;
+        }
+
+        _context.Carts.Remove(cart);
+        await _context.SaveChangesAsync(cancellationToken);
         return true;
     }
 }

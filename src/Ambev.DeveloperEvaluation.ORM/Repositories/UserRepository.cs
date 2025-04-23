@@ -25,9 +25,16 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(Guid id)
         {
             return await _context.Users.FindAsync(id);
+        }
+
+        public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         }
 
         public async Task<User?> GetByUsernameAndPasswordAsync(string username, string password)
@@ -54,17 +61,14 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteByIdAsync(Guid id)
+        public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
+            var user = await _context.Users.FindAsync(new object[] { id }, cancellationToken);
+            if (user is null)
                 return false;
-            }
 
             _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
+            await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
 

@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Ambev.DeveloperEvaluation.Application.Carts;
-using Ambev.DeveloperEvaluation.Domain.Entities;
-using Ambev.DeveloperEvaluation.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using MediatR;
+using Ambev.DeveloperEvaluation.Application.Carts.GetCarts;
+using Ambev.DeveloperEvaluation.Application.Carts.CreateCart;
+using Ambev.DeveloperEvaluation.Application.Carts.UpdateCart;
+using Ambev.DeveloperEvaluation.Application.Carts.DeleteCart;
+using Ambev.DeveloperEvaluation.ORM.Repositories;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Controllers
 {
@@ -11,62 +14,62 @@ namespace Ambev.DeveloperEvaluation.WebApi.Controllers
     [Authorize]
     public class CartsController : ControllerBase
     {
-        private readonly ICartRepository _cartRepository;
+        private readonly IMediator _mediator;
 
-        public CartsController(ICartRepository cartRepository)
+        public CartsController(IMediator mediator)
         {
-            _cartRepository = cartRepository;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCarts()
+        public async Task<IActionResult> GetCarts([FromQuery] GetCartsQuery query)
         {
-            var carts = await _cartRepository.GetAllAsync();
-            return Ok(carts);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCartById(int id)
         {
-            var cart = await _cartRepository.GetByIdAsync(id);
-            if (cart == null)
-            {
+            var query = new GetCartByIdQuery(id);
+            var result = await _mediator.Send(query);
+
+            if (result == null)
                 return NotFound();
-            }
-            return Ok(cart);
+
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCart([FromBody] Cart cart)
+        public async Task<IActionResult> CreateCart([FromBody] CreateCartCommand command)
         {
-            await _cartRepository.AddAsync(cart);
-            return CreatedAtAction(nameof(GetCartById), new { id = cart.Id }, cart);
+            var result = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetCartById), new { id = result }, new { Id = result });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCart(int id, [FromBody] Cart cart)
+        public async Task<IActionResult> UpdateCart(int id, [FromBody] UpdateCartCommand command)
         {
-            var existingCart = await _cartRepository.GetByIdAsync(id);
-            if (existingCart == null)
-            {
+            if (id != command.Id)
+                return BadRequest("ID from route and body must match");
+
+            var success = await _mediator.Send(command);
+
+            if (!success)
                 return NotFound();
-            }
 
-            existingCart.UserId = cart.UserId;
-            existingCart.Items = cart.Items;
-
-            await _cartRepository.UpdateAsync(existingCart);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCart(int id)
         {
-            var success = await _cartRepository.DeleteByIdAsync(id);
+            var command = new DeleteCartCommand(id);
+            var success = await _mediator.Send(command);
+
             if (!success)
-            {
                 return NotFound();
-            }
+
             return NoContent();
         }
     }

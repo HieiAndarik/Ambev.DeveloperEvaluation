@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Sales\MappingProfiles\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 

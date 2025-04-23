@@ -27,9 +27,11 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
 
         public async Task<IEnumerable<Sale>> GetAllAsync(int page, int size, string orderBy)
         {
-            var query = _context.Set<Sale>().AsQueryable();
+            var query = _context.Set<Sale>()
+                .Include(s => s.Items) 
+                .AsNoTracking()        
+                .AsQueryable();
 
-            // Apply ordering
             if (!string.IsNullOrEmpty(orderBy))
             {
                 var parts = orderBy.Split(',');
