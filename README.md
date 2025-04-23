@@ -79,12 +79,12 @@ https://localhost:8081/swagger/index.html
 ### Criar Produto (POST /api/Products)
 ```json
 {
-  "title": "Mouse Gamer",
-  "description": "RGB, 16000 DPI",
-  "price": 199.99,
-  "category": "peripherals",
+  "title": "Breja Ambev",
+  "description": "Cerveja Leve para Churrasco",
+  "price": 9.99,
+  "category": "Birita",
   "image": "https://example.com/mouse.png",
-  "rate": 4.8,
+  "rate": 4.9,
   "count": 120
 }
 ```
