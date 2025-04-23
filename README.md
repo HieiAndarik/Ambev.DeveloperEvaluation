@@ -1,86 +1,139 @@
-# Developer Evaluation Project
+# Ambev Developer Evaluation - Backend API
 
-`READ CAREFULLY`
+## 📦 Sobre o Projeto
 
-## Instructions
-**The test below will have up to 7 calendar days to be delivered from the date of receipt of this manual.**
+Esta aplicação foi desenvolvida como parte do processo de avaliação técnica da Ambev. Ela simula uma API RESTful para gerenciamento de usuários, produtos, carrinhos e vendas, implementada em .NET com arquitetura moderna, testes unitários completos e suporte a Docker.
 
-- The code must be versioned in a public Github repository and a link must be sent for evaluation once completed
-- Upload this template to your repository and start working from it
-- Read the instructions carefully and make sure all requirements are being addressed
-- The repository must provide instructions on how to configure, execute and test the project
-- Documentation and overall organization will also be taken into consideration
+---
 
-## Use Case
-**You are a developer on the DeveloperStore team. Now we need to implement the API prototypes.**
+## 🚀 Como Executar o Projeto
 
-As we work with `DDD`, to reference entities from other domains, we use the `External Identities` pattern with denormalization of entity descriptions.
+### Pré-requisitos
 
-Therefore, you will write an API (complete CRUD) that handles sales records. The API needs to be able to inform:
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download)
+- [Docker + Docker Compose](https://docs.docker.com/get-docker/)
+- [PostgreSQL CLI ou cliente DB externo opcional]
 
-* Sale number
-* Date when the sale was made
-* Customer
-* Total sale amount
-* Branch where the sale was made
-* Products
-* Quantities
-* Unit prices
-* Discounts
-* Total amount for each item
-* Cancelled/Not Cancelled
+### 1. Clonar o repositório
 
-It's not mandatory, but it would be a differential to build code for publishing events of:
-* SaleCreated
-* SaleModified
-* SaleCancelled
-* ItemCancelled
+```bash
+git clone https://github.com/SeuUsuario/Ambev.DeveloperEvaluation.git
+cd Ambev.DeveloperEvaluation
+```
 
-If you write the code, **it's not required** to actually publish to any Message Broker. You can log a message in the application log or however you find most convenient.
+### 2. Executar via Docker
 
-### Business Rules
+```bash
+docker-compose up --build
+```
 
-* Purchases above 4 identical items have a 10% discount
-* Purchases between 10 and 20 identical items have a 20% discount
-* It's not possible to sell above 20 identical items
-* Purchases below 4 items cannot have a discount
+A aplicação estará disponível em: [https://localhost:8081/swagger](https://localhost:8081/swagger)
 
-These business rules define quantity-based discounting tiers and limitations:
+### 3. Executar Localmente (sem Docker)
 
-1. Discount Tiers:
-   - 4+ items: 10% discount
-   - 10-20 items: 20% discount
+1. Configure a connection string no `appsettings.json`:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=developer_evaluation;Username=developer;Password=ev@luAt10n"
+}
+```
 
-2. Restrictions:
-   - Maximum limit: 20 items per product
-   - No discounts allowed for quantities below 4 items
+2. Aplique as migrations:
 
-## Overview
-This section provides a high-level overview of the project and the various skills and competencies it aims to assess for developer candidates. 
+```bash
+dotnet ef database update --project src/Ambev.DeveloperEvaluation.ORM
+```
 
-See [Overview](/.doc/overview.md)
+3. Execute o projeto:
 
-## Tech Stack
-This section lists the key technologies used in the project, including the backend, testing, frontend, and database components. 
+```bash
+dotnet run --project src/Ambev.DeveloperEvaluation.WebApi
+```
 
-See [Tech Stack](/.doc/tech-stack.md)
+---
 
-## Frameworks
-This section outlines the frameworks and libraries that are leveraged in the project to enhance development productivity and maintainability. 
+## 🧪 Executar os Testes
 
-See [Frameworks](/.doc/frameworks.md)
+```bash
+dotnet test
+```
 
-<!-- 
-## API Structure
-This section includes links to the detailed documentation for the different API resources:
-- [API General](./docs/general-api.md)
-- [Products API](/.doc/products-api.md)
-- [Carts API](/.doc/carts-api.md)
-- [Users API](/.doc/users-api.md)
-- [Auth API](/.doc/auth-api.md)
--->
+- Todos os testes estão organizados por área (Users, Products, Carts, Sales).
+- Total de testes implementados: **134**
+- Cobertura de testes: 100% dos cenários documentados.
 
-## Project Structure
-This section describes the overall structure and organization of the project files and directories. 
+---
 
-See [Project Structure](/.doc/project-structure.md)
+## 🔍 Swagger
+
+A documentação da API está disponível em tempo de execução via Swagger UI:
+
+```
+https://localhost:8081/swagger/index.html
+```
+
+---
+
+## 📦 Exemplos de Payload
+
+### Criar Produto (POST /api/Products)
+```json
+{
+  "title": "Mouse Gamer",
+  "description": "RGB, 16000 DPI",
+  "price": 199.99,
+  "category": "peripherals",
+  "image": "https://example.com/mouse.png",
+  "rate": 4.8,
+  "count": 120
+}
+```
+
+### Criar Venda (POST /api/Sales)
+```json
+{
+  "customerId": "eea3ebf9-2ff6-4670-81ae-fcc22477ef96",
+  "branchId": "1c4d6cfa-1fd6-40cf-b20d-4b4600d84653",
+  "items": [
+    {
+      "productId": 2,
+      "quantity": 12
+    }
+  ]
+}
+```
+
+---
+
+## 🧱 Tecnologias
+
+- .NET 8 + C# 12
+- PostgreSQL
+- Redis (Docker)
+- MongoDB (Docker)
+- xUnit + Moq + FluentAssertions
+- MediatR + CQRS
+- FluentValidation
+- AutoMapper
+- Serilog (pronto para logging estruturado)
+- Swagger/OpenAPI
+
+---
+
+## 📂 Organização
+
+```
+├── Application
+│   ├── Users
+│   ├── Products
+│   ├── Carts
+│   └── Sales
+├── Domain
+│   ├── Entities
+│   ├── Interfaces
+│   └── Enums
+├── ORM
+├── WebApi
+├── Tests
+└── docker-compose.yml
+```
