@@ -8,6 +8,8 @@ using FluentAssertions;
 using Moq;
 using Xunit;
 
+namespace Ambev.DeveloperEvaluation.Unit.Application.Products;
+
 public class UpdateProductHandlerTests
 {
     private readonly Mock<IProductRepository> _productRepositoryMock = new();

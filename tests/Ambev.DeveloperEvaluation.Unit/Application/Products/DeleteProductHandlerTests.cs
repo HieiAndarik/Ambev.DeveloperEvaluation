@@ -15,7 +15,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Products
         public async Task Handle_ShouldDeleteProduct_WhenProductExists()
         {
             // Arrange
-            var productId = 1;
+            const int productId = 1;
             _productRepositoryMock.Setup(r => r.DeleteByIdAsync(productId, default))
                                    .ReturnsAsync(true);
 
@@ -32,7 +32,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Products
         public async Task Handle_ShouldReturnFalse_WhenProductDoesNotExist()
         {
             // Arrange
-            var productId = 99;
+            const int productId = 99;
             _productRepositoryMock.Setup(r => r.DeleteByIdAsync(productId, default))
                                    .ReturnsAsync(false);
 
@@ -49,7 +49,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Products
         public async Task Handle_ShouldCallRepository_WithCorrectProductId()
         {
             // Arrange
-            var productId = 123;
+            const int productId = 123;
             var called = false;
 
             _productRepositoryMock.Setup(r => r.DeleteByIdAsync(productId, default))

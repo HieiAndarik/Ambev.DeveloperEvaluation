@@ -37,7 +37,6 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Products
                 .Setup(r => r.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-
             var handler = new CreateProductHandler(_productRepositoryMock.Object, _mapper);
 
             var result = await handler.Handle(command, CancellationToken.None);
