@@ -83,7 +83,7 @@ https://localhost:8081/swagger/index.html
   "description": "Cerveja Leve para Churrasco",
   "price": 9.99,
   "category": "Birita",
-  "image": "https://example.com/mouse.png",
+  "image": "https://example.com/breja.png",
   "rate": 4.9,
   "count": 120
 }
