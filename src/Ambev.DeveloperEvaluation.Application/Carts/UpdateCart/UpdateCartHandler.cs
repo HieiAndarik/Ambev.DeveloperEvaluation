@@ -1,27 +1,43 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Interfaces;
+﻿using Ambev.DeveloperEvaluation.Application.Carts.UpdateCart;
+using Ambev.DeveloperEvaluation.Domain.Entities;
+using Ambev.DeveloperEvaluation.Domain.Interfaces;
 using MediatR;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Ambev.DeveloperEvaluation.Application.Carts.UpdateCart
+public sealed class UpdateCartHandler : IRequestHandler<UpdateCartCommand, bool>
 {
-    public sealed class UpdateCartHandler : IRequestHandler<UpdateCartCommand, bool>
+    private readonly ICartRepository _cartRepository;
+
+    public UpdateCartHandler(ICartRepository cartRepository)
     {
-        private readonly ICartRepository _cartRepository;
-
-        public UpdateCartHandler(ICartRepository cartRepository)
-        {
-            _cartRepository = cartRepository;
-        }
-
-        public async Task<bool> Handle(UpdateCartCommand command, CancellationToken cancellationToken)
-        {
-            var cart = await _cartRepository.GetByIdAsync(command.Id, cancellationToken);
-            if (cart is null)
-                return false;
-
-            cart.UserId = command.UserId;
-            cart.Date = command.Date;
-
-            return await _cartRepository.UpdateAsync(cart, cancellationToken);
-        }
+        _cartRepository = cartRepository;
     }
+
+    public async Task<bool> Handle(UpdateCartCommand request, CancellationToken cancellationToken)
+    {
+        var existingCart = await _cartRepository.GetByIdAsync(request.Id, cancellationToken);
+
+        if (existingCart is null)
+            return false;
+
+        existingCart.UserId = request.UserId;
+        existingCart.Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc);
+
+        await _cartRepository.RemoveItemsAsync(existingCart.Items, cancellationToken);
+
+        foreach (var item in request.Items)
+        {
+            existingCart.Items.Add(new CartItem
+            {
+                CartId = existingCart.Id,
+                ProductId = item.ProductId,
+                Quantity = item.Quantity
+            });
+        }
+
+        await _cartRepository.UpdateAsync(existingCart, cancellationToken);
+        return true;
+    }
+
 }

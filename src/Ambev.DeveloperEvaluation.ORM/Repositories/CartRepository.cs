@@ -63,12 +63,12 @@ public class CartRepository : ICartRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> UpdateAsync(Cart cart, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Cart cart, CancellationToken cancellationToken = default)
     {
         _context.Carts.Update(cart);
-        var affected = await _context.SaveChangesAsync(cancellationToken);
-        return affected > 0;
+        await _context.SaveChangesAsync(cancellationToken);
     }
+
 
     public async Task DeleteAsync(Cart cart)
     {
@@ -109,5 +109,10 @@ public class CartRepository : ICartRepository
         _context.Carts.Remove(cart);
         await _context.SaveChangesAsync(cancellationToken);
         return true;
+    }
+    public async Task RemoveItemsAsync(IEnumerable<CartItem> items, CancellationToken cancellationToken)
+    {
+        _context.CartItems.RemoveRange(items);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

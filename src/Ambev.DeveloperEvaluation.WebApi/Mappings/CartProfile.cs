@@ -11,7 +11,8 @@ namespace Ambev.DeveloperEvaluation.WebApi.Mappings
             CreateMap<CartItem, CartItemDto>();
 
             CreateMap<Cart, CartDto>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.UserId));
         }
     }
 }

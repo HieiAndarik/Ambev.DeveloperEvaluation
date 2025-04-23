@@ -11,10 +11,12 @@ namespace Ambev.DeveloperEvaluation.Domain.Interfaces
         Task AddAsync(Cart cart);
         Task AddAsync(Cart cart, CancellationToken cancellationToken);
         Task UpdateAsync(Cart cart);
-        Task<bool> UpdateAsync(Cart cart, CancellationToken cancellationToken);
+        Task UpdateAsync(Cart cart, CancellationToken cancellationToken);
         Task DeleteAsync(Cart cart);
         Task DeleteAsync(Cart cart, CancellationToken cancellationToken);
         Task<bool> DeleteByIdAsync(int id);
         Task<bool> DeleteByIdAsync(int id, CancellationToken cancellationToken);
+        Task RemoveItemsAsync(IEnumerable<CartItem> items, CancellationToken cancellationToken);
+
     }
 }
